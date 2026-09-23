@@ -78,6 +78,7 @@ java -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 \
 ## Quy tắc phối hợp
 
 - Không sửa `SportField`, 4 subclass, `IPeakHourCalculable` hoặc `FieldManager` khi chưa thống nhất breaking change.
+- Mã sân (`fieldId`) là bất biến sau khi tạo để `FieldManager` luôn duy nhất.
 - Mọi validation thất bại dùng `IllegalArgumentException`.
 - `findFieldById()` trả về `null` nếu không tìm thấy.
 - `getAllFields()` trả về danh sách unmodifiable.

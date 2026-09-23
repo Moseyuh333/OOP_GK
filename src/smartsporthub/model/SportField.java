@@ -5,13 +5,13 @@ package smartsporthub.model;
  */
 public abstract class SportField {
 
-    private String fieldId;
+    private final String fieldId;
     private String fieldName;
     private double basePricePerHour;
     private FieldStatus status;
 
     protected SportField(String fieldId, String fieldName, double basePricePerHour, FieldStatus status) {
-        setFieldId(fieldId);
+        this.fieldId = requireText(fieldId, "Mã sân không được để trống.");
         setFieldName(fieldName);
         setBasePricePerHour(basePricePerHour);
         setStatus(status);
@@ -22,10 +22,6 @@ public abstract class SportField {
 
     public String getFieldId() {
         return fieldId;
-    }
-
-    public final void setFieldId(String fieldId) {
-        this.fieldId = requireText(fieldId, "Mã sân không được để trống.");
     }
 
     public String getFieldName() {

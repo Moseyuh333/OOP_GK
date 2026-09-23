@@ -39,6 +39,7 @@ public final class FieldDomainTest {
         run("FieldManager cập nhật MAINTENANCE", FieldDomainTest::testUpdateFieldStatus);
         run("FieldManager chặn ID trùng", FieldDomainTest::testDuplicateId);
         run("FieldManager lọc theo loại sân", FieldDomainTest::testSearchByType);
+        run("Mã sân bất biến", FieldDomainTest::testFieldIdIsImmutable);
 
         System.out.printf("%n===== KẾT QUẢ FIELD DOMAIN: %d/%d PASS =====%n", passed, total);
         if (passed != total) {
@@ -177,6 +178,19 @@ public final class FieldDomainTest {
         List<SportField> footballFields = manager.searchByType(FootballField.class);
         assertEquals(1, footballFields.size());
         assertTrue(footballFields.get(0) instanceof FootballField);
+    }
+
+    private static void testFieldIdIsImmutable() {
+        FootballField field = new FootballField("F001", "Sân bóng", 100_000, FieldStatus.AVAILABLE, 50_000);
+        boolean hasSetter = false;
+        try {
+            SportField.class.getMethod("setFieldId", String.class);
+            hasSetter = true;
+        } catch (NoSuchMethodException expected) {
+            // API contract cố ý không có setter cho mã sân.
+        }
+        assertFalse(hasSetter);
+        assertEquals("F001", field.getFieldId());
     }
 
     private static void run(String name, Runnable test) {
