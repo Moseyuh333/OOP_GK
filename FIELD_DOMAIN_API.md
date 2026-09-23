@@ -1,6 +1,6 @@
 # SmartSportHub — Field Domain API Contract
 
-Branch: `feature/field-domain`  
+Branch: `feature/field-domain`
 Package root: `smartsporthub`
 
 ## API dùng chung
@@ -30,7 +30,7 @@ if (field instanceof IPeakHourCalculable peak
 }
 ```
 
-Khung giờ cao điểm: `[17:00, 20:00)`.  
+Khung giờ cao điểm: `[17:00, 20:00)`.
 Tỷ lệ phí giờ cao điểm: `20%` trên `basePricePerHour × hours`.
 
 ## Phí riêng theo loại sân
