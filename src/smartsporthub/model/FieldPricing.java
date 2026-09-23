@@ -13,7 +13,7 @@ public final class FieldPricing {
     public static final double BADMINTON_RACKET_FEE = 20_000;
     public static final double BADMINTON_MAT_FEE = 10_000;
     public static final double TENNIS_EQUIPMENT_FEE = 40_000;
-    public static final double PICKLEBALL_EQUIPMENT_FEE = 15_000;
+    public static final double PICKLEBALL_EQUIPMENT_FEE_PER_HOUR = 15_000;
 
     private FieldPricing() {
     }

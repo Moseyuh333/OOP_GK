@@ -70,7 +70,7 @@ public final class FieldDomainTest {
     private static void testCreatePickleballField() {
         PickleballField field = new PickleballField("P001", "Sân pickleball D", 120_000,
                 FieldStatus.AVAILABLE, 15_000);
-        assertEquals(15_000, field.getEquipmentFee());
+        assertEquals(15_000, field.getEquipmentFeePerHour());
     }
 
     private static void testRentalFeePolymorphism() {
@@ -85,7 +85,7 @@ public final class FieldDomainTest {
         assertEquals(200_000, fields.get(0).calculateRentalFee(2));
         assertEquals(190_000, fields.get(1).calculateRentalFee(2));
         assertEquals(340_000, fields.get(2).calculateRentalFee(2));
-        assertEquals(255_000, fields.get(3).calculateRentalFee(2));
+        assertEquals(270_000, fields.get(3).calculateRentalFee(2));
     }
 
     private static void testPeakHourSurcharge() {

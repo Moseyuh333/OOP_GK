@@ -40,7 +40,7 @@ Tỷ lệ phí giờ cao điểm: `20%` trên `basePricePerHour × hours`.
 | Football | `basePricePerHour × hours` |
 | Badminton | `basePricePerHour × hours + racketFee + matFee` |
 | Tennis | `basePricePerHour × hours + courtEquipmentFee` |
-| Pickleball | `basePricePerHour × hours + equipmentFee` |
+| Pickleball | `(basePricePerHour + equipmentFeePerHour) × hours` |
 
 Riêng football có API tính phụ thu để Booking gọi khi thực sự sử dụng đèn:
 

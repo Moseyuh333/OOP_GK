@@ -5,23 +5,23 @@ import smartsporthub.interfaces.IPeakHourCalculable;
 /** Sân pickleball. */
 public class PickleballField extends SportField implements IPeakHourCalculable {
 
-    private double equipmentFee;
+    private double equipmentFeePerHour;
 
     public PickleballField(String fieldId, String fieldName, double basePricePerHour, FieldStatus status) {
-        this(fieldId, fieldName, basePricePerHour, status, FieldPricing.PICKLEBALL_EQUIPMENT_FEE);
+        this(fieldId, fieldName, basePricePerHour, status, FieldPricing.PICKLEBALL_EQUIPMENT_FEE_PER_HOUR);
     }
 
     public PickleballField(String fieldId, String fieldName, double basePricePerHour,
-            FieldStatus status, double equipmentFee) {
+            FieldStatus status, double equipmentFeePerHour) {
         super(fieldId, fieldName, basePricePerHour, status);
-        validateNonNegativeFee(equipmentFee, "Phí thiết bị pickleball không được âm.");
-        this.equipmentFee = equipmentFee;
+        validateNonNegativeFee(equipmentFeePerHour, "Phí thiết bị pickleball theo giờ không được âm.");
+        this.equipmentFeePerHour = equipmentFeePerHour;
     }
 
     @Override
     public double calculateRentalFee(double hours) {
         validateHours(hours);
-        return getBasePricePerHour() * hours + equipmentFee;
+        return (getBasePricePerHour() + equipmentFeePerHour) * hours;
     }
 
     @Override
@@ -29,12 +29,12 @@ public class PickleballField extends SportField implements IPeakHourCalculable {
         return calculatePeakFee(hours);
     }
 
-    public double getEquipmentFee() {
-        return equipmentFee;
+    public double getEquipmentFeePerHour() {
+        return equipmentFeePerHour;
     }
 
-    public final void setEquipmentFee(double equipmentFee) {
-        validateNonNegativeFee(equipmentFee, "Phí thiết bị pickleball không được âm.");
-        this.equipmentFee = equipmentFee;
+    public final void setEquipmentFeePerHour(double equipmentFeePerHour) {
+        validateNonNegativeFee(equipmentFeePerHour, "Phí thiết bị pickleball theo giờ không được âm.");
+        this.equipmentFeePerHour = equipmentFeePerHour;
     }
 }
