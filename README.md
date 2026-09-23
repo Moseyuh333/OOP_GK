@@ -1,7 +1,7 @@
 # SmartSportHub — Field Domain
 
-> Java Console Application cho bài kiểm tra giữa kỳ môn **Lập trình Hướng đối tượng (OOPR240279)**.  
-> Repository: https://github.com/Moseyuh333/OOP_GK  
+> Java Console Application cho bài kiểm tra giữa kỳ môn **Lập trình Hướng đối tượng (OOPR240279)**.
+> Repository: https://github.com/Moseyuh333/OOP_GK
 > Phạm vi hiện tại: **Part A — Field Domain**.
 
 SmartSportHub mô phỏng nghiệp vụ quản lý sân thể thao. Phần Field Domain chịu trách nhiệm mô tả dữ liệu sân, trạng thái, công thức tính tiền, phụ phí giờ cao điểm và thao tác quản lý danh sách sân. Phần Booking/Billing của Developer B sẽ sử dụng API ổn định từ module này.
