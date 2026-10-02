@@ -1,8 +1,8 @@
-# SmartSportHub — Field Domain
+# SmartSportHub — Java Core (Field + Booking/Billing Domain)
 
 > Java Console Application cho bài kiểm tra giữa kỳ môn **Lập trình Hướng đối tượng (OOPR240279)**.
 > Repository: https://github.com/Moseyuh333/OOP_GK
-> Phạm vi hiện tại: **Part A — Field Domain**.
+> Phạm vi hiện tại: **Java Core — Field Domain (Part A) + Booking/Billing Domain + Seed Data + JSON/API cho Developer B**.
 
 SmartSportHub mô phỏng nghiệp vụ quản lý sân thể thao. Phần Field Domain chịu trách nhiệm mô tả dữ liệu sân, trạng thái, công thức tính tiền, phụ phí giờ cao điểm và thao tác quản lý danh sách sân. Phần Booking/Billing của Developer B sẽ sử dụng API ổn định từ module này.
 
@@ -611,20 +611,17 @@ Kết quả mong đợi:
 ### Đã hoàn thiện
 
 - Toàn bộ Field Domain của Part A.
-- API contract ổn định cho Booking/Billing.
+- Booking/Billing Domain: `Customer`/`StandardCustomer`/`VipCustomer`,
+  `Service`, `Booking`/`BookingManager`, `Invoice`/`InvoiceManager`.
+- Seed data: 6 field, 6 customer, 6 service, 12 booking, 12 invoice.
+- JSON contract + file `data/dataset.json` + HTTP API cho Developer B
+  (xem [`API_CONTRACT.md`](API_CONTRACT.md)).
 - Test và tài liệu kỹ thuật.
 
-### Chưa thuộc Part A
+### Chưa thuộc phạm vi Java Core
 
-- `Customer`, `StandardCustomer`, `VipCustomer`.
-- `Service`.
-- `Booking`, `BookingManager`.
-- `Invoice`.
-- Console menu tổng thể.
-- Luồng thanh toán và tạo hóa đơn.
-- Database, serialization hoặc lưu trữ dữ liệu.
-
-Các phần trên thuộc Developer B hoặc giai đoạn tích hợp sau.
+- Console menu tổng thể (nếu giảng viên yêu cầu thêm).
+- Database, serialization hoặc lưu trữ dữ liệu ngoài file JSON.
 
 ---
 
