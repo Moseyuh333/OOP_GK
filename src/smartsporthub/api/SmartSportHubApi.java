@@ -53,7 +53,11 @@ public final class SmartSportHubApi {
     /** Tạo server đã cấu hình đầy đủ, dùng được cả cho test. */
     public static HttpServer createServer(int port, SmartSportHubData data) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.setExecutor(Executors.newFixedThreadPool(4));
+        server.setExecutor(Executors.newFixedThreadPool(4, runnable -> {
+            Thread worker = new Thread(runnable);
+            worker.setDaemon(true);
+            return worker;
+        }));
 
         server.createContext("/api/health", wrap(exchange -> {
             Map<String, Object> body = new LinkedHashMap<>();
