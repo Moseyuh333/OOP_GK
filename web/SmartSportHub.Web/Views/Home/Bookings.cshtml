@@ -1,0 +1,18 @@
+@model BookingsModel
+@{
+    ViewData["Title"] = "Booking";
+}
+<div class="page-title"><div><p class="eyebrow">LỊCH ĐẶT</p><h1>Booking</h1><p>Giá trị và trạng thái được tính bởi Java Core.</p></div></div>
+<form class="filters" method="get" action="/bookings">
+    <label>Trạng thái<select name="status"><option value="">Tất cả</option>@foreach (var status in Model.Statuses) { <option value="@status" selected="@(status == Model.Status)">@status</option> }</select></label>
+    <label>Loại sân<select name="fieldType"><option value="">Tất cả</option>@foreach (var type in Model.FieldTypes) { <option value="@type" selected="@(type == Model.FieldType)">@type</option> }</select></label>
+    <label>Khách hàng<select name="customerId"><option value="">Tất cả</option>@foreach (var customer in Model.Customers) { <option value="@customer.Id" selected="@(customer.Id == Model.CustomerId)">@customer.FullName</option> }</select></label>
+    <label>Ngày<input type="date" name="date" value="@Model.Date?.ToString("yyyy-MM-dd")" /></label>
+    <button type="submit">Lọc</button><a href="/bookings">Xóa lọc</a>
+</form>
+<section class="panel"><div class="panel-head"><h2>Danh sách booking</h2><span class="count">@Model.Results.TotalCount booking</span></div>
+<div class="table-scroll"><table><thead><tr><th>Mã</th><th>Khách hàng</th><th>Sân</th><th>Bắt đầu</th><th>Kết thúc</th><th>Trạng thái</th><th>Giá trị</th></tr></thead><tbody>
+@foreach (var b in Model.Results.Items) { <tr><td>@b.Id</td><td>@b.CustomerName</td><td>@b.FieldName</td><td>@b.StartTime.ToString("dd/MM/yyyy HH:mm")</td><td>@b.EndTime.ToString("dd/MM/yyyy HH:mm")</td><td><span class="badge">@b.Status</span></td><td>@b.TotalAmount.ToString("N0") ₫</td></tr> }
+@if (Model.Results.TotalCount == 0) { <tr><td colspan="7" class="empty">Không có booking phù hợp.</td></tr> }
+</tbody></table></div></section>
+@if (Model.Results.TotalPages > 1) { <div class="pagination">@for (var p = 1; p <= Model.Results.TotalPages; p++) { <a class="@(p == Model.Results.Page ? "current" : "")" href="@Url.Action("Bookings", new { status = Model.Status, fieldType = Model.FieldType, customerId = Model.CustomerId, date = Model.Date?.ToString("yyyy-MM-dd"), page = p })">@p</a> }</div> }

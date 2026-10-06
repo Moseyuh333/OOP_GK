@@ -1,0 +1,9 @@
+@model ServicesModel
+@{
+    ViewData["Title"] = "Dịch vụ";
+}
+<div class="page-title"><div><p class="eyebrow">DỊCH VỤ</p><h1>Dịch vụ</h1><p>Lượt sử dụng chỉ tính booking đã hoàn thành.</p></div></div>
+<section class="panel"><div class="panel-head"><h2>Danh sách dịch vụ</h2><span class="count">@Model.Rows.Count dịch vụ</span></div>
+<div class="table-scroll"><table><thead><tr><th>Mã</th><th>Dịch vụ</th><th>Nhóm</th><th>Đơn giá</th><th>Trạng thái</th><th>Lượt dùng</th></tr></thead><tbody>
+@foreach (var row in Model.Rows) { <tr><td>@row.Service.Id</td><td>@row.Service.Name</td><td>@row.Service.Category</td><td>@row.Service.UnitPrice.ToString("N0") ₫</td><td><span class="badge">@(row.Service.Active ? "Đang cung cấp" : "Ngừng cung cấp")</span></td><td>@row.UsageCount</td></tr> }
+</tbody></table></div></section>

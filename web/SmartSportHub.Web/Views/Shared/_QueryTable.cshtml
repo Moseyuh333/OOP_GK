@@ -1,0 +1,21 @@
+@model QueryResult
+<section class="panel">
+    <div class="panel-head"><h2>@Model.Id — @Model.Title</h2><span class="count">@Model.Count kết quả</span></div>
+    <p>@Model.Question</p>
+    <p class="muted">LINQ: @Model.Concepts</p>
+    <div class="table-scroll">
+        <table>
+            <thead><tr>@foreach (var heading in Model.Columns) { <th>@heading</th> }</tr></thead>
+            <tbody>
+                @if (Model.Rows.Count == 0)
+                {
+                    <tr><td colspan="@Model.Columns.Length" class="empty">Không có kết quả phù hợp trong dữ liệu hiện tại.</td></tr>
+                }
+                @foreach (var row in Model.Rows)
+                {
+                    <tr>@foreach (var cell in row) { <td>@cell</td> }</tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

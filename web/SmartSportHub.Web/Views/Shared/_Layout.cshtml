@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · SmartSportHub</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="site-header">
+        <div class="shell nav-wrap">
+            <a class="brand" href="/">SmartSportHub</a>
+            <nav aria-label="Điều hướng chính">
+                <a href="/">Tổng quan</a><a href="/fields">Sân</a>
+                <a href="/customers">Khách hàng</a><a href="/bookings">Booking</a>
+                <a href="/services">Dịch vụ</a><a href="/reports">Báo cáo</a>
+                <a href="/queries">LINQ Q01–Q20</a>
+            </nav>
+        </div>
+    </header>
+    <main class="shell">@RenderBody()</main>
+    <footer class="shell footer">Dữ liệu trực tiếp từ SmartSportHub Java Core API.</footer>
+</body>
+</html>

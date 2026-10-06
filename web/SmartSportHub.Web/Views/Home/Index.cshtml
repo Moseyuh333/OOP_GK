@@ -1,0 +1,14 @@
+@model DashboardModel
+@{
+    ViewData["Title"] = "Tổng quan";
+}
+<div class="page-title"><div><p class="eyebrow">SMARTSPORTHUB</p><h1>Tổng quan</h1><p>Dữ liệu cập nhật từ Java Core API.</p></div><a class="button" href="/reports">Xem báo cáo</a></div>
+<div class="stats">
+    <div class="stat"><span>Tổng số sân</span><strong>@Model.TotalFields</strong></div>
+    <div class="stat"><span>Sân đang mở</span><strong>@Model.AvailableFields</strong></div>
+    <div class="stat"><span>Khách hàng</span><strong>@Model.TotalCustomers</strong></div>
+    <div class="stat"><span>Tổng booking</span><strong>@Model.TotalBookings</strong></div>
+    <div class="stat"><span>Đã hoàn thành</span><strong>@Model.CompletedBookings</strong></div>
+    <div class="stat accent"><span>Doanh thu booking hoàn thành</span><strong>@Model.TotalRevenue.ToString("N0") ₫</strong></div>
+</div>
+<section class="panel"><h2>Khám phá dữ liệu</h2><p>Xem danh sách sân, khách hàng, booking, dịch vụ và 20 câu truy vấn LINQ theo dữ liệu hiện có.</p><div class="quick-links"><a href="/fields">Danh sách sân →</a><a href="/bookings">Booking →</a><a href="/queries">Q01–Q20 →</a></div></section>

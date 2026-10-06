@@ -2,3 +2,5 @@ out/
 *.class
 *.log
 .hermes/
+web/**/bin/
+web/**/obj/
