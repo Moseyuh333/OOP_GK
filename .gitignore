@@ -4,3 +4,5 @@ out/
 .hermes/
 web/**/bin/
 web/**/obj/
+docs/.$*.bkp
+__pycache__/
