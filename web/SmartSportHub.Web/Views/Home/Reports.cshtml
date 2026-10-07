@@ -1,0 +1,14 @@
+@model ReportsModel
+@{
+    ViewData["Title"] = "Báo cáo";
+}
+<div class="page-title"><div><p class="eyebrow">PHÂN TÍCH</p><h1>Báo cáo</h1><p>Chỉ booking COMPLETED được tính vào doanh thu.</p></div></div>
+<div class="stat accent report-total"><span>Tổng doanh thu</span><strong>@Model.TotalRevenue.ToString("N0") ₫</strong></div>
+<div class="report-grid">
+    <partial name="_QueryTable" model="Model.RevenueByType" />
+    <partial name="_QueryTable" model="Model.BookingsByType" />
+    <partial name="_QueryTable" model="Model.BookingsByHour" />
+    <partial name="_QueryTable" model="Model.MostUsedService" />
+    <partial name="_QueryTable" model="Model.TopFields" />
+    <partial name="_QueryTable" model="Model.TopCustomers" />
+</div>

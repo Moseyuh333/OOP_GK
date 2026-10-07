@@ -1,0 +1,9 @@
+@model CustomersModel
+@{
+    ViewData["Title"] = "Khách hàng";
+}
+<div class="page-title"><div><p class="eyebrow">KHÁCH HÀNG</p><h1>Khách hàng</h1><p>Thống kê bao gồm cả khách chưa hoàn thành booking.</p></div></div>
+<section class="panel"><div class="panel-head"><h2>Danh sách khách hàng</h2><span class="count">@Model.Rows.Count khách</span></div>
+<div class="table-scroll"><table><thead><tr><th>Mã</th><th>Họ tên</th><th>Loại</th><th>Điện thoại</th><th>Booking hoàn thành</th><th>Tổng chi</th></tr></thead><tbody>
+@foreach (var row in Model.Rows) { <tr><td>@row.Customer.Id</td><td>@row.Customer.FullName</td><td><span class="badge">@row.Customer.CustomerType</span></td><td>@row.Customer.PhoneNumber</td><td>@row.CompletedBookings</td><td>@row.TotalSpending.ToString("N0") ₫</td></tr> }
+</tbody></table></div></section>

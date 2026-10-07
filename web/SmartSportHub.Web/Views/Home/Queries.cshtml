@@ -1,0 +1,9 @@
+@model QueriesModel
+@{
+    ViewData["Title"] = "20 truy vấn LINQ";
+}
+<div class="page-title"><div><p class="eyebrow">LINQ LAB</p><h1>20 truy vấn SmartSportHub</h1><p>Chọn câu hỏi để xem kết quả trên dữ liệu Java hiện tại.</p></div></div>
+<nav class="query-nav" aria-label="Chọn truy vấn">
+@foreach (var query in Model.Queries) { <a class="@(query.Id == Model.Selected.Id ? "current" : "")" href="/queries?id=@query.Id.Substring(1)">@query.Id</a> }
+</nav>
+<partial name="_QueryTable" model="Model.Selected" />
