@@ -206,13 +206,14 @@ public sealed class SmartSportHubQueryService
             .Where(x => x.Types >= 2).Join(d.Customers, x => x.Id, c => c.Id,
                 (x, c) => new[] { c.Id, c.FullName, x.Types.ToString() }));
 
-    private static QueryResult Q14(ApiData d) => Result(14, "Thuê vợt nhưng chưa đặt tennis",
-        "Khách nào đã dùng dịch vụ có tên chứa 'vợt' trong booking COMPLETED nhưng chưa từng đặt sân tennis?",
-        "Where · Any · All", ["Mã", "Khách hàng"],
-        d.Customers.Where(c => d.Bookings.Any(b => b.CustomerId == c.Id && Completed(b) &&
-                b.ServiceName?.Contains("vợt", StringComparison.OrdinalIgnoreCase) == true)
-            && d.Bookings.Where(b => b.CustomerId == c.Id).All(b => b.FieldType != "TENNIS"))
-            .Select(c => new[] { c.Id, c.FullName }));
+    private static QueryResult Q14(ApiData d) => Result(14, "Thuê dụng cụ nhưng chưa đặt tennis",
+            "Khách nào đã dùng dịch vụ thuộc nhóm Thiết bị trong booking COMPLETED nhưng chưa từng đặt sân tennis?",
+            "Where · Any · All", ["Mã", "Khách hàng"],
+            d.Customers.Where(c => d.Bookings.Any(b => b.CustomerId == c.Id && Completed(b) &&
+                    b.ServiceId != null &&
+                    d.Services.Any(s => s.Id == b.ServiceId && s.Category == "Thiết bị"))
+                && d.Bookings.Where(b => b.CustomerId == c.Id).All(b => b.FieldType != "TENNIS"))
+                .Select(c => new[] { c.Id, c.FullName }));
 
     private static QueryResult Q15(ApiData d) => Result(15, "Booking theo giờ bắt đầu",
         "Có bao nhiêu booking COMPLETED bắt đầu ở mỗi giờ?", "Where · GroupBy · Count",
