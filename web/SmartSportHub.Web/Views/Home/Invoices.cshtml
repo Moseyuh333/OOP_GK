@@ -1,0 +1,26 @@
+@model InvoicesModel
+@{
+    ViewData["Title"] = "Hóa đơn";
+}
+<div class="page-title"><div><p class="eyebrow">THU TIỀN</p><h1>Hóa đơn</h1><p>Hóa đơn phát sinh từ booking; chỉ booking COMPLETED mới tính vào doanh thu.</p></div></div>
+
+<div class="stats">
+    <div class="stat accent"><span>Đã thu (PAID)</span><strong>@Model.Totals.Collected.ToString("N0") ₫</strong></div>
+    <div class="stat warn"><span>Còn phải thu (UNPAID)</span><strong>@Model.Totals.Outstanding.ToString("N0") ₫</strong></div>
+    <div class="stat muted-stat"><span>Đã hoàn trả (REFUNDED)</span><strong>@Model.Totals.Returned.ToString("N0") ₫</strong></div>
+</div>
+
+<form class="filters" method="get" action="/invoices">
+    <label>Trạng thái<select name="status"><option value="">Tất cả</option>@foreach (var status in Model.Statuses) { <option value="@status" selected="@(status == Model.Status)">@status</option> }</select></label>
+    <label>Khách hàng<select name="customerId"><option value="">Tất cả</option>@foreach (var customer in Model.Customers) { <option value="@customer.Id" selected="@(customer.Id == Model.CustomerId)">@customer.FullName</option> }</select></label>
+    <label>Ngày phát hành<input type="date" name="date" value="@Model.Date?.ToString("yyyy-MM-dd")" /></label>
+    <button type="submit">Lọc</button><a href="/invoices">Xóa lọc</a>
+</form>
+
+<section class="panel"><div class="panel-head"><h2>Danh sách hóa đơn</h2><span class="count">@Model.TotalCount hóa đơn</span></div>
+<div class="table-scroll"><table><thead><tr><th>Mã</th><th>Booking</th><th>Khách hàng</th><th>Sân</th><th>Ngày</th><th>Trạng thái</th><th>Số tiền</th></tr></thead><tbody>
+@foreach (var row in Model.Rows) { <tr><td>@row.Invoice.Id</td><td>@row.Invoice.BookingId</td><td>@row.CustomerName</td><td>@row.FieldName</td><td>@row.Invoice.IssueDate.ToString("dd/MM/yyyy")</td><td><span class="badge badge-@row.Invoice.Status.ToLowerInvariant()">@row.Invoice.Status</span></td><td>@row.Invoice.Amount.ToString("N0") ₫</td></tr> }
+@if (Model.TotalCount == 0) { <tr><td colspan="7" class="empty">Không có hóa đơn phù hợp.</td></tr> }
+</tbody></table></div></section>
+
+@if (Model.TotalPages > 1) { <div class="pagination">@for (var p = 1; p <= Model.TotalPages; p++) { <a class="@(p == Model.Page ? "current" : "")" href="@Url.Action("Invoices", new { status = Model.Status, customerId = Model.CustomerId, date = Model.Date, page = p })">@p</a> }</div> }

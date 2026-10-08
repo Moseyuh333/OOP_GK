@@ -35,16 +35,39 @@ public sealed class SmartSportHubQueryService
     public FieldsModel Fields(ApiData d, string? type, string? status, int page)
     {
         var filtered = d.Fields.Where(f => (string.IsNullOrEmpty(type) || f.Type == type) &&
-            (string.IsNullOrEmpty(status) || f.Status == status)).OrderBy(f => f.Id);
-        return new(Page(filtered, page, 10), type, status,
-            d.Fields.Select(f => f.Type).Distinct().OrderBy(x => x).ToList(),
-            d.Fields.Select(f => f.Status).Distinct().OrderBy(x => x).ToList());
+                    (string.IsNullOrEmpty(status) || f.Status == status)).OrderBy(f => f.Id);
+
+                // Thống kê tính trên toàn bộ sân, không phụ thuộc bộ lọc đang xem.
+                var stats = new FieldStats(d.Fields.Count,
+                    d.Fields.Count(f => f.Status == "AVAILABLE"),
+                    d.Fields.Count(f => f.Status == "OCCUPIED"),
+                    d.Fields.Count(f => f.Status == "MAINTENANCE"),
+                    Math.Round(d.Fields.Average(f => f.BasePricePerHour), 0),
+                    d.Fields.Max(f => f.BasePricePerHour));
+
+                return new(Page(filtered, page, 10), type, status,
+                    d.Fields.Select(f => f.Type).Distinct().OrderBy(x => x).ToList(),
+                    d.Fields.Select(f => f.Status).Distinct().OrderBy(x => x).ToList(),
+                    stats);
     }
 
-    public CustomersModel Customers(ApiData d) => new(d.Customers
-        .GroupJoin(d.Bookings.Where(Completed), c => c.Id, b => b.CustomerId,
-            (c, bookings) => new CustomerRow(c, bookings.Count(), bookings.Sum(b => b.TotalAmount)))
-        .OrderBy(x => x.Customer.Id).ToList());
+    public CustomersModel Customers(ApiData d)
+        {
+            var rows = d.Customers
+                .GroupJoin(d.Bookings.Where(Completed), c => c.Id, b => b.CustomerId,
+                    (c, bookings) => new CustomerRow(c, bookings.Count(), bookings.Sum(b => b.TotalAmount)))
+                .OrderBy(x => x.Customer.Id).ToList();
+
+            // "Có đặt" = khách đã có ít nhất một booking, không phân biệt trạng thái.
+            var booked = d.Bookings.Select(b => b.CustomerId).ToHashSet();
+            var stats = new CustomerStats(d.Customers.Count,
+                d.Customers.Count(c => c.CustomerType == "VIP"),
+                d.Customers.Count(c => c.CustomerType == "STANDARD"),
+                d.Customers.Count(c => booked.Contains(c.Id)),
+                rows.Sum(r => r.TotalSpending));
+
+            return new(rows, stats);
+        }
 
     public BookingsModel Bookings(ApiData d, string? status, string? fieldType,
         string? customerId, DateOnly? date, int page)
@@ -61,10 +84,59 @@ public sealed class SmartSportHubQueryService
             d.Customers.OrderBy(c => c.FullName).ToList());
     }
 
-    public ServicesModel Services(ApiData d) => new(d.Services
-        .GroupJoin(d.Bookings.Where(Completed), s => s.Id, b => b.ServiceId,
-            (s, bookings) => new ServiceRow(s, bookings.Count()))
-        .OrderBy(x => x.Service.Id).ToList());
+    public InvoicesModel Invoices(ApiData d, string? status, string? customerId,
+        DateOnly? date, int page, int pageSize)
+    {
+        var all = d.Invoices.OrderBy(i => i.Id).ToList();
+        var filtered = all.Where(i =>
+                (string.IsNullOrEmpty(status) || i.Status == status) &&
+                (string.IsNullOrEmpty(customerId) || i.CustomerId == customerId) &&
+                (date is null || i.IssueDate == date))
+            .OrderBy(i => i.Id).ToList();
+
+        var pageList = Page(filtered, page, pageSize);
+        var bookings = d.Bookings.ToDictionary(b => b.Id);
+        var customers = d.Customers.ToDictionary(c => c.Id);
+
+        var rows = pageList.Items.Select(i => new InvoiceRow(i,
+                bookings.GetValueOrDefault(i.BookingId),
+                customers.GetValueOrDefault(i.CustomerId)?.FullName ?? i.CustomerId,
+                bookings.GetValueOrDefault(i.BookingId)?.FieldName ?? i.FieldId,
+                bookings.GetValueOrDefault(i.BookingId)?.Status ?? "—")).ToList();
+
+        // Tổng số tiền theo trạng thái: PAID = đã thu, UNPAID = còn phải thu,
+        // REFUNDED = đã hoàn trả. Tính trên toàn bộ hóa đơn, không lọc theo bộ lọc đang xem.
+        var totals = new InvoiceTotals(
+            all.Where(i => i.Status == "PAID").Sum(i => i.Amount),
+            all.Where(i => i.Status == "UNPAID").Sum(i => i.Amount),
+            all.Where(i => i.Status == "REFUNDED").Sum(i => i.Amount));
+
+        return new(rows, totals, status, customerId, date, pageList.Page, pageList.PageSize,
+            pageList.TotalCount,
+            all.Select(i => i.Status).Distinct().OrderBy(x => x).ToList(),
+            d.Customers.OrderBy(c => c.FullName).ToList());
+    }
+
+    public ServicesModel Services(ApiData d)
+        {
+            var rows = d.Services
+                .GroupJoin(d.Bookings.Where(Completed), s => s.Id, b => b.ServiceId,
+                    (s, bookings) => new ServiceRow(s, bookings.Count()))
+                .OrderBy(x => x.Service.Id).ToList();
+
+            // Doanh thu phát sinh từ phí dịch vụ: mỗi booking COMPLETED gánh 1 dịch vụ.
+            var services = d.Services.ToDictionary(s => s.Id);
+            var revenue = d.Bookings.Where(Completed).Where(b => b.ServiceId != null
+                    && services.ContainsKey(b.ServiceId))
+                .Sum(b => services[b.ServiceId].UnitPrice);
+
+            var stats = new ServiceStats(d.Services.Count,
+                d.Services.Count(s => s.Active),
+                d.Services.Count(s => !s.Active),
+                revenue);
+
+            return new(rows, stats);
+        }
 
     public ReportsModel Reports(ApiData d)
     {

@@ -3,6 +3,14 @@
     ViewData["Title"] = "Sân thể thao";
 }
 <div class="page-title"><div><p class="eyebrow">DANH MỤC</p><h1>Sân thể thao</h1><p>Giá cơ bản theo giờ và trạng thái từ Java Core.</p></div></div>
+
+<div class="stats">
+    <div class="stat accent"><span>Sân đang mở</span><strong>@Model.Stats.Available / @Model.Stats.Total</strong></div>
+    <div class="stat"><span>Đang sử dụng</span><strong>@Model.Stats.Occupied</strong></div>
+    <div class="stat warn"><span>Bảo trì</span><strong>@Model.Stats.Maintenance</strong></div>
+    <div class="stat muted-stat"><span>Giá cao nhất / giờ</span><strong>@Model.Stats.HighestPrice.ToString("N0") ₫</strong></div>
+</div>
+
 <form class="filters" method="get" action="/fields">
     <label>Loại sân<select name="type"><option value="">Tất cả</option>@foreach (var type in Model.Types) { <option value="@type" selected="@(type == Model.Type)">@type</option> }</select></label>
     <label>Trạng thái<select name="status"><option value="">Tất cả</option>@foreach (var status in Model.Statuses) { <option value="@status" selected="@(status == Model.Status)">@status</option> }</select></label>
@@ -10,7 +18,7 @@
 </form>
 <section class="panel"><div class="panel-head"><h2>Danh sách sân</h2><span class="count">@Model.Results.TotalCount sân</span></div>
 <div class="table-scroll"><table><thead><tr><th>Mã</th><th>Tên sân</th><th>Loại</th><th>Giá/giờ</th><th>Trạng thái</th></tr></thead><tbody>
-@foreach (var f in Model.Results.Items) { <tr><td>@f.Id</td><td>@f.Name</td><td>@f.Type</td><td>@f.BasePricePerHour.ToString("N0") ₫</td><td><span class="badge">@f.Status</span></td></tr> }
+@foreach (var f in Model.Results.Items) { <tr><td>@f.Id</td><td>@f.Name</td><td>@f.Type</td><td>@f.BasePricePerHour.ToString("N0") ₫</td><td><span class="badge badge-@f.Status.ToLowerInvariant()">@f.Status</span></td></tr> }
 @if (Model.Results.TotalCount == 0) { <tr><td colspan="5" class="empty">Không có sân phù hợp.</td></tr> }
 </tbody></table></div></section>
 @if (Model.Results.TotalPages > 1) { <div class="pagination">@for (var p = 1; p <= Model.Results.TotalPages; p++) { <a class="@(p == Model.Results.Page ? "current" : "")" href="@Url.Action("Fields", new { type = Model.Type, status = Model.Status, page = p })">@p</a> }</div> }

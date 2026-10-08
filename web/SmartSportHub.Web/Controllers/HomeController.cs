@@ -30,9 +30,15 @@ public sealed class HomeController(
         CancellationToken cancellationToken = default) =>
         Render(d => View(queries.Bookings(d, status, fieldType, customerId, date, page)), cancellationToken);
 
-    [HttpGet("/services")]
-    public Task<IActionResult> Services(CancellationToken cancellationToken) =>
-        Render(d => View(queries.Services(d)), cancellationToken);
+    [HttpGet("/invoices")]
+        public Task<IActionResult> Invoices(string? status, string? customerId, DateOnly? date,
+            int page = 1, CancellationToken cancellationToken = default) =>
+            Render(d => View(queries.Invoices(d, status, customerId, date, page, 10)),
+                cancellationToken);
+
+        [HttpGet("/services")]
+        public Task<IActionResult> Services(CancellationToken cancellationToken) =>
+            Render(d => View(queries.Services(d)), cancellationToken);
 
     [HttpGet("/reports")]
     public Task<IActionResult> Reports(CancellationToken cancellationToken) =>

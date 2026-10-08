@@ -3,7 +3,15 @@
     ViewData["Title"] = "Khách hàng";
 }
 <div class="page-title"><div><p class="eyebrow">KHÁCH HÀNG</p><h1>Khách hàng</h1><p>Thống kê bao gồm cả khách chưa hoàn thành booking.</p></div></div>
+
+<div class="stats">
+    <div class="stat accent"><span>Khách hàng</span><strong>@Model.Stats.Total</strong></div>
+    <div class="stat"><span>VIP / Standard</span><strong>@Model.Stats.Vip / @Model.Stats.Standard</strong></div>
+    <div class="stat"><span>Đã từng đặt</span><strong>@Model.Stats.Active</strong></div>
+    <div class="stat muted-stat"><span>Tổng chi đã hoàn thành</span><strong>@Model.Stats.TotalSpending.ToString("N0") ₫</strong></div>
+</div>
+
 <section class="panel"><div class="panel-head"><h2>Danh sách khách hàng</h2><span class="count">@Model.Rows.Count khách</span></div>
 <div class="table-scroll"><table><thead><tr><th>Mã</th><th>Họ tên</th><th>Loại</th><th>Điện thoại</th><th>Booking hoàn thành</th><th>Tổng chi</th></tr></thead><tbody>
-@foreach (var row in Model.Rows) { <tr><td>@row.Customer.Id</td><td>@row.Customer.FullName</td><td><span class="badge">@row.Customer.CustomerType</span></td><td>@row.Customer.PhoneNumber</td><td>@row.CompletedBookings</td><td>@row.TotalSpending.ToString("N0") ₫</td></tr> }
+@foreach (var row in Model.Rows) { <tr><td>@row.Customer.Id</td><td>@row.Customer.FullName</td><td><span class="badge badge-@row.Customer.CustomerType.ToLowerInvariant()">@row.Customer.CustomerType</span></td><td>@row.Customer.PhoneNumber</td><td>@row.CompletedBookings</td><td>@row.TotalSpending.ToString("N0") ₫</td></tr> }
 </tbody></table></div></section>

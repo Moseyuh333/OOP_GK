@@ -16,7 +16,7 @@ a:hover { text-decoration: underline; }
 .eyebrow { color: #00877a !important; font-size: .73rem; letter-spacing: .16em; font-weight: 800; }
 .button, button { border: 0; border-radius: 9px; background: #08786e; color: white; padding: 10px 17px; font: inherit; font-weight: 650; cursor: pointer; }
 .button:hover, button:hover { background: #06665e; color: white; text-decoration: none; }
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
 .stat, .panel { border: 1px solid #dde7ec; border-radius: 13px; background: white; box-shadow: 0 6px 24px #173c4908; }
 .stat { padding: 22px; }
 .stat span { display: block; color: #61798a; font-size: .89rem; }
@@ -38,6 +38,18 @@ th, td { padding: 11px 12px; border-bottom: 1px solid #e5ecef; text-align: left;
 th { color: #557181; background: #f7fafb; font-size: .77rem; text-transform: uppercase; letter-spacing: .04em; }
 tr:last-child td { border-bottom: 0; }
 .badge { display: inline-block; padding: 3px 8px; border-radius: 99px; background: #e6f2f2; color: #136a69; font-size: .78rem; font-weight: 700; white-space: nowrap; }
+/* Màu badge theo trạng thái nghiệp vụ: xanh = đã xong, vàng = đang chờ,
+   xám = đã huỷ, đỏ = bị từ chối. Trước đây mọi trạng thái dùng chung một màu
+   nên không nhìn ra được khác biệt. */
+.badge-available, .badge-completed, .badge-paid, .badge-active { background: #dcf3e7; color: #14663f; }
+.badge-maintenance, .badge-pending, .badge-confirmed, .badge-unpaid { background: #fdf0d5; color: #8a5a08; }
+.badge-occupied { background: #e4e6f7; color: #3c40a0; }
+.badge-cancelled, .badge-refunded, .badge-inactive { background: #eceff1; color: #5d6b74; }
+.badge-rejected { background: #fde3e1; color: #a02b22; }
+.badge-vip { background: #f3e8fb; color: #6b2fa8; }
+.badge-standard { background: #e9eef2; color: #4b5c68; }
+.stat.warn { background: #fdf3e0; border-color: #f0dcb4; }
+.stat.muted-stat { background: #f6f8f9; }
 .empty { text-align: center; color: #69808d; padding: 22px; }
 .muted { font-size: .85rem; }
 .pagination, .query-nav { display: flex; flex-wrap: wrap; gap: 7px; margin: 15px 0 25px; }
