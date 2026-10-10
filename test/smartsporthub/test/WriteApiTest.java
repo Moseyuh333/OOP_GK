@@ -329,15 +329,21 @@ public class WriteApiTest {
         return matcher.group(1);
     }
 
-    /** Hoá đơn sinh ra có mã theo quy tắc I + phần đuôi mã booking. */
+    /**
+     * Tìm mã hoá đơn theo booking trong danh sách trả về.
+     * <p>
+     * Dò thay vì tính từ mã booking: quy tắc sinh mã thuộc phía server, test không
+     * nên nhân bản nó, nếu không sẽ cùng sai và không bao giờ phát hiện.
+     */
     private static String findInvoiceIdOf(String bookingId) throws Exception {
         Response list = get("/api/invoices");
-        // Mã hoá đơn khớp booking, tìm trong danh sách trả về.
-        String invoiceId = "I" + bookingId.substring(1);
-        if (!list.body.contains(invoiceId)) {
-            throw new AssertionError("không thấy hoá đơn " + invoiceId + " trong danh sách");
+        var matcher = Pattern.compile(
+                "\\{\\s*\"id\": \"([^\"]+)\",\\s*\"bookingId\": \"" + bookingId + "\"")
+                .matcher(list.body);
+        if (!matcher.find()) {
+            throw new AssertionError("không thấy hoá đơn của booking " + bookingId);
         }
-        return invoiceId;
+        return matcher.group(1);
     }
 
     private static void run(String name, CheckedRunnable body) {

@@ -80,6 +80,9 @@ public class BookingServiceTest {
 
         Invoice invoice = findInvoice(booking.getBookingId());
         assertTrue("tự sinh hoá đơn UNPAID", invoice != null && invoice.getStatus() == InvoiceStatus.UNPAID);
+        // B9001 -> I9001: bỏ tiền tố B, không phải cắt ký tự đầu.
+        assertTrue("mã hoá đơn I9001, nhận " + invoice.getInvoiceId(),
+                invoice.getInvoiceId().equals("I" + booking.getBookingId().substring(1)));
         assertTrue("tiền hoá đơn khớp tổng tiền booking",
                 Math.abs(invoice.getAmount() - booking.getTotalAmount()) < 0.01);
     }

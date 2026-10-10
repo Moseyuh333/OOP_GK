@@ -117,7 +117,7 @@ public class BookingService {
             }
 
             // Hoá đơn khởi tạo chưa thu: khách trả sau khi dùng xong.
-            Invoice invoice = new Invoice("I" + bookingId.substring(1), booking,
+            Invoice invoice = new Invoice(toInvoiceId(bookingId), booking,
                     booking.getStartTime().toLocalDate(), InvoiceStatus.UNPAID);
             data.getInvoiceManager().addInvoice(invoice);
 
@@ -363,6 +363,16 @@ public class BookingService {
             throw BusinessException.conflict("Dịch vụ " + service.getServiceName() + " đã ngừng cung cấp.");
         }
         return service;
+    }
+
+    /**
+     * Mã hoá đơn bám theo mã booking: {@code B9001} → {@code I9001}.
+     * <p>
+     * Bỏ tiền tố {@code B} chứ không cắt ký tự đầu, để quy tắc không phụ thuộc vào
+     * độ dài mã booking và sinh ra đúng với cả mã dài nhiều chữ số.
+     */
+    private static String toInvoiceId(String bookingId) {
+        return "I" + (bookingId.startsWith("B") ? bookingId.substring(1) : bookingId);
     }
 
     private String nextBookingId() {
