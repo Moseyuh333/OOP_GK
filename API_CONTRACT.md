@@ -21,6 +21,8 @@ java -Dfile.encoding=UTF-8 -cp out smartsporthub.service.DataExportService
 
 ## 2. Endpoints
 
+### 2.1. Đọc (GET)
+
 | Method | URL | Mô tả |
 |---|---|---|
 | GET | `/api/health` | Kiểm tra server sống + đếm entity |
@@ -30,17 +32,71 @@ java -Dfile.encoding=UTF-8 -cp out smartsporthub.service.DataExportService
 | GET | `/api/bookings?page=1&pageSize=20` | Danh sách booking (đã tính tiền) |
 | GET | `/api/invoices?page=1&pageSize=20` | Danh sách hóa đơn |
 | GET | `/api/data` | Snapshot toàn bộ 5 tập (không phân trang) |
+| GET | `/api/overview` | Tổng quan nhanh: đếm entity + doanh thu |
+
+### 2.2. Ghi (POST / PATCH)
+
+| Method | URL | Mô tả |
+|---|---|---|
+| POST | `/api/bookings` | Đặt sân mới |
+| POST | `/api/bookings/{id}/cancel` | Hủy lượt đặt |
+| POST | `/api/bookings/{id}/complete` | Đánh dấu đã dùng xong |
+| POST | `/api/bookings/{id}/reschedule` | Đổi khung giờ |
+| POST | `/api/invoices/{id}/pay` | Thu tiền hóa đơn |
+| POST | `/api/invoices/{id}/refund` | Hoàn tiền hóa đơn |
+| PATCH | `/api/fields/{id}/status` | Đổi trạng thái sân |
+
+Body ghi luôn là JSON phẳng với giá trị chuỗi.
+
+`POST /api/bookings` — `fieldId`, `customerId`, `startTime`, `endTime` bắt buộc,
+`serviceId` tuỳ chọn. Thời gian theo định dạng `2026-04-01T08:00` (không có
+múi giờ). Phản hồi `201` kèm JSON booking đầy đủ; server tự sinh hóa đơn ở
+trạng thái `UNPAID`.
+
+```
+POST /api/bookings
+{"customerId":"C001","fieldId":"F001",
+ "startTime":"2026-04-01T08:00","endTime":"2026-04-01T10:00",
+ "serviceId":"SV001"}
+```
+
+`POST /api/bookings/{id}/reschedule` — `newStartTime`, `newEndTime` bắt buộc.
+
+`PATCH /api/fields/{id}/status` — `status` là `AVAILABLE`, `OCCUPIED` hoặc
+`MAINTENANCE`. Sân còn lượt đặt hiệu lực thì không chuyển sang `MAINTENANCE`.
+
+### 2.3. Mã lỗi
+
+| Mã | Khi nào |
+|---|---|
+| `400` | Thiếu trường bắt buộc, sai định dạng thời gian, giờ kết thúc trước giờ bắt đầu |
+| `404` | Không tìm thấy khách / sân / dịch vụ / booking / hóa đơn, hoặc action lạ |
+| `405` | Endpoint chỉ nhận GET mà gọi bằng phương thức khác |
+| `409` | Trùng khung giờ, sân đang bảo trì, dịch vụ đã ngừng, trạng thái không hợp lệ (hủy booking đã hủy, thu hóa đơn đã thu…) |
+| `500` | Lỗi đọc/ghi cơ sở dữ liệu |
+
+Mọi lỗi trả `{"error": "thông điệp tiếng Việt"}`.
 
 Quy ước chung:
 
-- Chỉ hỗ trợ `GET`. Method khác trả `405 {"error": "..."}`.
-- URL không khớp trả `404 {"error": "Không tìm thấy ..."}`.
 - `Content-Type` luôn `application/json; charset=UTF-8`.
-- Phân trang: `page` bắt đầu từ 1, `pageSize` mặc định 20, tối đa 200.
+- Phân trang (chỉ áp dụng cho GET): `page` bắt đầu từ 1, `pageSize` mặc định 20.
 - Tất cả số tiền là `number` (VND, không format dấu phẩy).
 
 Ví dụ phân trang: `GET /api/bookings?page=2&pageSize=5` → 5 booking thứ 6–10
 trong tổng 12 booking.
+
+### 2.4. Dữ liệu bền vững
+
+Server dùng SQLite tại `db/smartsporthub.db` (đổi được qua tham số dòng lệnh
+thứ hai). Lần chạy đầu nạp seed; các lần sau nạp lại từ file nên dữ liệu còn
+sau khi tắt ứng dụng.
+
+Khởi chạy:
+
+```
+java -cp "out;lib/sqlite-jdbc-3.46.1.3.jar" smartsporthub.api.SmartSportHubApi [port] [dbPath]
+```
 
 ## 3. Schema JSON
 
@@ -183,3 +239,5 @@ totalAmount  = rentalFee + peakSurcharge + serviceFee − discount
 3. Viết lại công thức mục 3.4, test với booking `B001` phải ra `243000`.
 4. Xử lý `serviceId = null`, `status = CANCELLED` (doanh thu = 0).
 5. Gọi API live theo bảng mục 2 để kiểm tra phân trang + 404/405.
+6. Phía C# **không mở file SQLite**: mọi thao tác ghi đi qua endpoint mục 2.2.
+7. Bắt đầu server bằng `build.sh` rồi `java -cp "out;lib/sqlite-jdbc-3.46.1.3.jar" smartsporthub.api.SmartSportHubApi`.

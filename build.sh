@@ -28,7 +28,7 @@ javac -encoding UTF-8 -cp "out;$CP" -d test-out $(find test -name "*.java")
 echo "==> Chạy kiểm thử"
 status=0
 for suite in FieldDomainTest BookingDomainTest SeedDataValidationTest JsonContractTest \
-             ApiServerTest DatabaseTest BookingServiceTest; do
+             ApiServerTest DatabaseTest BookingServiceTest WriteApiTest; do
   if ! java -Dfile.encoding=UTF-8 -cp "out;test-out;$CP" "smartsporthub.test.$suite" | tail -1; then
     status=1
   fi
