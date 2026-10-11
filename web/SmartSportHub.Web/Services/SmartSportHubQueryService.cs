@@ -79,9 +79,11 @@ public sealed class SmartSportHubQueryService
                 (date is null || DateOnly.FromDateTime(b.StartTime) == date))
             .OrderBy(b => b.StartTime).ThenBy(b => b.Id);
         return new(Page(filtered, page, 10), status, fieldType, customerId, date,
-            d.Bookings.Select(b => b.Status).Distinct().OrderBy(x => x).ToList(),
-            d.Fields.Select(f => f.Type).Distinct().OrderBy(x => x).ToList(),
-            d.Customers.OrderBy(c => c.FullName).ToList());
+                    d.Bookings.Select(b => b.Status).Distinct().OrderBy(x => x).ToList(),
+                    d.Fields.Select(f => f.Type).Distinct().OrderBy(x => x).ToList(),
+                    d.Customers.OrderBy(c => c.FullName).ToList(),
+                    d.Fields.Where(f => f.Status == "AVAILABLE").OrderBy(f => f.Name).ToList(),
+                    d.Services.Where(s => s.Active).OrderBy(s => s.Name).ToList());
     }
 
     public InvoicesModel Invoices(ApiData d, string? status, string? customerId,

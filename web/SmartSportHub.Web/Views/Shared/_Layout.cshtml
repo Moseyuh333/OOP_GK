@@ -20,6 +20,14 @@
         </div>
     </header>
     <main class="shell">@RenderBody()</main>
-    <footer class="shell footer">Dữ liệu trực tiếp từ SmartSportHub Java Core API.</footer>
+        @if (TempData["FlashError"] is string flashError)
+        {
+            <div class="flash flash-error">@flashError</div>
+        }
+        @if (TempData["FlashOk"] is string flashOk)
+        {
+            <div class="flash flash-ok">@flashOk</div>
+        }
+        <footer class="shell footer">Dữ liệu trực tiếp từ SmartSportHub Java Core API.</footer>
 </body>
 </html>

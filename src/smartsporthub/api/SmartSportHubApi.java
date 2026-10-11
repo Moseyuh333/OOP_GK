@@ -39,8 +39,8 @@ import smartsporthub.service.DataExportService;
 public final class SmartSportHubApi {
 
     public static final int DEFAULT_PORT = 8080;
-        public static final String DEFAULT_DB_PATH = "db/smartsporthub.db";
-        private static final String JSON_TYPE = "application/json; charset=utf-8";
+    public static final String DEFAULT_DB_PATH = "db/smartsporthub.db";
+    private static final String JSON_TYPE = "application/json; charset=utf-8";
 
     private SmartSportHubApi() {
         // Utility class
@@ -48,29 +48,29 @@ public final class SmartSportHubApi {
 
     public static void main(String[] args) throws Exception {
         int port = args.length > 0 ? Integer.parseInt(args[0]) : DEFAULT_PORT;
-            String dbPath = args.length > 1 ? args[1] : DEFAULT_DB_PATH;
+        String dbPath = args.length > 1 ? args[1] : DEFAULT_DB_PATH;
 
-            Connection connection = Database.open(dbPath);
-            Database.createSchema(connection);
-            Repository repository = new Repository(connection);
-            SmartSportHubData data = SeedData.create();
+        Connection connection = Database.open(dbPath);
+        Database.createSchema(connection);
+        Repository repository = new Repository(connection);
+        SmartSportHubData data = SeedData.create();
 
-            // DB rong thi nap seed, sau do moi ghi xuong de lan sau dung lai.
-            if (!repository.loadInto(data.getFieldManager(), data.getCustomerManager(),
-                    data.getServiceManager(), data.getBookingManager(), data.getInvoiceManager())) {
-                repository.saveAll(data.getFieldManager(), data.getCustomerManager(),
-                        data.getServiceManager(), data.getBookingManager(), data.getInvoiceManager());
-            }
-
-            HttpServer server = createServer(port, data, new BookingService(data, repository));
-            server.start();
-            System.out.println("SmartSportHub API đang chạy tại http://localhost:" + port + "/api/data");
-            System.out.println("Cơ sở dữ liệu: " + dbPath);
-            System.out.println("Dữ liệu: " + data.summary());
+        // DB rong thi nap seed, sau do moi ghi xuong de lan sau dung lai.
+        if (!repository.loadInto(data.getFieldManager(), data.getCustomerManager(),
+                data.getServiceManager(), data.getBookingManager(), data.getInvoiceManager())) {
+            repository.saveAll(data.getFieldManager(), data.getCustomerManager(),
+                    data.getServiceManager(), data.getBookingManager(), data.getInvoiceManager());
         }
 
-        /** Tạo server đã cấu hình đầy đủ, dùng được cả cho test. */
-        public static HttpServer createServer(int port, SmartSportHubData data) throws IOException {
+        HttpServer server = createServer(port, data, new BookingService(data, repository));
+        server.start();
+        System.out.println("SmartSportHub API đang chạy tại http://localhost:" + port + "/api/data");
+        System.out.println("Cơ sở dữ liệu: " + dbPath);
+        System.out.println("Dữ liệu: " + data.summary());
+    }
+
+    /** Tạo server đã cấu hình đầy đủ, dùng được cả cho test. */
+    public static HttpServer createServer(int port, SmartSportHubData data) throws IOException {
         return createServer(port, data, null);
     }
 
@@ -145,39 +145,39 @@ public final class SmartSportHubApi {
         }
     }
 
-        /**
+    /**
      * Đăng ký một endpoint danh sách (đọc live từ kho dữ liệu mỗi request).
      * <p>
      * Nếu có BookingService thì endpoint này còn nhận POST để tạo booking mới:
      * một đường dẫn, hai phương thức, tránh phải đăng ký context trùng nhau.
      */
     private static void registerCollection(HttpServer server, String path,
-                Supplier<List<? extends JsonDto>> supplier, BookingService bookingService) {
-            server.createContext(path, wrap(exchange -> {
-                if ("POST".equalsIgnoreCase(exchange.getRequestMethod())
-                        && "/api/bookings".equals(path)) {
-                    if (bookingService == null) {
-                        respondError(exchange, 405, "Máy chủ đang chạy chế độ chỉ đọc.");
-                        return;
-                    }
-                    Map<String, String> body = WriteApi.readJsonObject(exchange);
-                    var booking = bookingService.createBooking(
-            WriteApi.requireField(exchange, body, "customerId"),
-            WriteApi.requireField(exchange, body, "fieldId"),
-            WriteApi.requireField(exchange, body, "startTime"),
-            WriteApi.requireField(exchange, body, "endTime"),
-            body.get("serviceId"));
-                    respond(exchange, 201, JsonWriter.toJson(new BookingDto(booking).toMap()));
+            Supplier<List<? extends JsonDto>> supplier, BookingService bookingService) {
+        server.createContext(path, wrap(exchange -> {
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod())
+                    && "/api/bookings".equals(path)) {
+                if (bookingService == null) {
+                    respondError(exchange, 405, "Máy chủ đang chạy chế độ chỉ đọc.");
                     return;
                 }
-                if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())
+                Map<String, String> body = WriteApi.readJsonObject(exchange);
+                var booking = bookingService.createBooking(
+                        WriteApi.requireField(exchange, body, "customerId"),
+                        WriteApi.requireField(exchange, body, "fieldId"),
+                        WriteApi.requireField(exchange, body, "startTime"),
+                        WriteApi.requireField(exchange, body, "endTime"),
+                        body.get("serviceId"));
+                respond(exchange, 201, JsonWriter.toJson(new BookingDto(booking).toMap()));
+                return;
+            }
+            if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())
                     && !"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
                 requireGet(exchange);
                 return;
             }
             respond(exchange, 200, arrayJson(exchange, supplier.get()));
-            }));
-        }
+        }));
+    }
 
     /** Áp dụng phân trang {@code ?page=&pageSize=} rồi trả về mảng JSON. */
     private static String arrayJson(HttpExchange exchange, List<? extends JsonDto> source) {

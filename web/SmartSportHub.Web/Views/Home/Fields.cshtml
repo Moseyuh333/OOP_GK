@@ -17,8 +17,22 @@
     <button type="submit">Lọc</button><a href="/fields">Xóa lọc</a>
 </form>
 <section class="panel"><div class="panel-head"><h2>Danh sách sân</h2><span class="count">@Model.Results.TotalCount sân</span></div>
-<div class="table-scroll"><table><thead><tr><th>Mã</th><th>Tên sân</th><th>Loại</th><th>Giá/giờ</th><th>Trạng thái</th></tr></thead><tbody>
-@foreach (var f in Model.Results.Items) { <tr><td>@f.Id</td><td>@f.Name</td><td>@f.Type</td><td>@f.BasePricePerHour.ToString("N0") ₫</td><td><span class="badge badge-@f.Status.ToLowerInvariant()">@f.Status</span></td></tr> }
-@if (Model.Results.TotalCount == 0) { <tr><td colspan="5" class="empty">Không có sân phù hợp.</td></tr> }
+<div class="table-scroll"><table><thead><tr><th>Mã</th><th>Tên sân</th><th>Loại</th><th>Giá/giờ</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>
+@foreach (var f in Model.Results.Items) { <tr><td>@f.Id</td><td>@f.Name</td><td>@f.Type</td><td>@f.BasePricePerHour.ToString("N0") ₫</td><td><span class="badge badge-@f.Status.ToLowerInvariant()">@f.Status</span></td><td class="row-actions">
+    @if (f.Status == "AVAILABLE")
+    {
+        <form method="post" action="/fields/@f.Id/status"><input type="hidden" name="status" value="MAINTENANCE" /><button type="submit" class="btn-danger">Chuyển bảo trì</button></form>
+        <form method="post" action="/fields/@f.Id/status"><input type="hidden" name="status" value="OCCUPIED" /><button type="submit" class="btn-warn">Đánh dấu đang dùng</button></form>
+    }
+    else if (f.Status == "MAINTENANCE")
+    {
+        <form method="post" action="/fields/@f.Id/status"><input type="hidden" name="status" value="AVAILABLE" /><button type="submit" class="btn-ok">Mở lại sân</button></form>
+    }
+    else
+    {
+        <form method="post" action="/fields/@f.Id/status"><input type="hidden" name="status" value="AVAILABLE" /><button type="submit" class="btn-ok">Mở lại sân</button></form>
+    }
+</td></tr> }
+@if (Model.Results.TotalCount == 0) { <tr><td colspan="6" class="empty">Không có sân phù hợp.</td></tr> }
 </tbody></table></div></section>
 @if (Model.Results.TotalPages > 1) { <div class="pagination">@for (var p = 1; p <= Model.Results.TotalPages; p++) { <a class="@(p == Model.Results.Page ? "current" : "")" href="@Url.Action("Fields", new { type = Model.Type, status = Model.Status, page = p })">@p</a> }</div> }

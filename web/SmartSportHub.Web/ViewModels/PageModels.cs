@@ -23,7 +23,8 @@ public sealed record CustomersModel(IReadOnlyList<CustomerRow> Rows, CustomerSta
 
 public sealed record BookingsModel(PagedList<BookingDto> Results, string? Status, string? FieldType,
     string? CustomerId, DateOnly? Date, IReadOnlyList<string> Statuses,
-    IReadOnlyList<string> FieldTypes, IReadOnlyList<CustomerDto> Customers);
+    IReadOnlyList<string> FieldTypes, IReadOnlyList<CustomerDto> Customers,
+    IReadOnlyList<FieldDto> Fields, IReadOnlyList<ServiceDto> Services);
 
 public sealed record ServiceRow(ServiceDto Service, int UsageCount);
 public sealed record ServiceStats(int Total, int Active, int Inactive, decimal TotalRevenue);
