@@ -498,8 +498,26 @@ OOP_GK/
 │       │   ├── FieldType.java             ← enum loại sân, đặt ở tầng DTO
 │       │   └── DtoMapper.java
 │       ├── service/
+│       │   ├── BookingService.java      ← nghiệp vụ ghi: đặt/hủy/đổi/hoàn thành/thu tiền
+│       │   └── BusinessException.java   ← ánh xạ lỗi nghiệp vụ → mã HTTP
+│       ├── db/
+│       │   ├── Database.java            ← kết nối JDBC + SQLite, schema, WAL
+│       │   └── Repository.java          ← đọc/ghi 5 bảng, giao dịch, chặn trùng lịch
 │       └── api/
+│           ├── SmartSportHubApi.java    ← server HTTP + endpoint đọc
+│           └── WriteApi.java            ← endpoint ghi POST/PATCH
+├── lib/
+│   └── sqlite-jdbc-3.46.1.3.jar        ← driver JDBC (không commit)
 ├── test/
+│   ├── FieldDomainTest.java             15 phép thử
+│   ├── BookingDomainTest.java           11 phép thử
+│   ├── SeedDataValidationTest.java      18 phép thử
+│   ├── JsonContractTest.java            9 phép thử
+│   ├── ApiServerTest.java               11 phép thử
+│   ├── DatabaseTest.java                9 phép thử
+│   ├── BookingServiceTest.java          22 phép thử
+│   └── WriteApiTest.java                18 phép thử
+├── build.sh                            ← biên dịch + chạy toàn bộ kiểm thử
 ├── docs/
 │   ├── erd.drawio
 │   ├── DAC_TA_THIET_KE.md
@@ -868,6 +886,7 @@ Phần này ghi rõ chỗ nào trong ERD là **thiết kế**, chỗ nào đã *
 | 1 | Kiểu của `SERVICE.category` | Enum `ServiceCategory` | Kiểu `String` | **Chưa hiện thực.** Giá trị đang dùng là chuỗi tiếng Việt: `"Nước"`, `"Thiết bị"`, `"Dịch vụ"`, `"Tiệc cư trang"`, `"Tiện ích"` |
 | 2 | Cột `fieldType` trong `SPORTFIELD` | Cột thật, lưu trong bảng | Suy ra bằng `instanceof` trong enum `FieldType` | **Có hiện thực ở tầng DTO** — `BookingDto` và `FieldDto` đều xuất ra trường `fieldType`, Developer B dùng được ngay |
 | 3 | Cột `tierLevel` | Thuộc tính của khách VIP | Có trong lớp `VipCustomer` | **Có hiện thực**, nhưng dữ liệu mẫu chưa gán giá trị |
+| 4 | Lược đồ vật lý | 9 bảng ER (mỗi loại sân một bảng) | SQLite gộp còn **5 bảng** `customers`, `fields`, `services`, `bookings`, `invoices` | **Có hiện thực.** Cột `field_type` + 4 cột phí riêng nằm ngay trong bảng `fields`; thêm FK, CHECK, index và WAL |
 
 **Về điểm 1 — vì sao nên bổ sung enum `ServiceCategory`:**
 
@@ -1025,6 +1044,12 @@ totalAmount     = rentalFee + peakSurcharge + serviceFee − discount
 | `src/smartsporthub/dto/` | 5 lớp DTO, lớp cơ sở `JsonDto`, bộ chuyển đổi `DtoMapper`, enum `FieldType` |
 | `src/smartsporthub/interfaces/` | 2 interface |
 | `src/smartsporthub/manager/` | 5 lớp quản lý |
+| `src/smartsporthub/service/` | `BookingService` (nghiệp vụ ghi), `BusinessException` (ánh xạ lỗi → HTTP) |
+| `src/smartsporthub/db/` | `Database` (JDBC + SQLite), `Repository` (đọc/ghi, giao dịch) |
+| `src/smartsporthub/api/` | `SmartSportHubApi` (server HTTP), `WriteApi` (endpoint ghi) |
+| `lib/sqlite-jdbc-3.46.1.3.jar` | Driver JDBC SQLite (có local, không commit) |
+| `build.sh` | Biên dịch + chạy toàn bộ kiểm thử |
+| `web/` | Phần Developer B — ASP.NET Core MVC đọc Java API |
 
 ## 8.3 Cách tái tạo ERD
 
@@ -1040,10 +1065,16 @@ Script `gen_erd.py` sinh file `.drawio` từ dữ liệu khai báo trong code. S
 | Hạng mục | Kết quả |
 |---|---|
 | Biên dịch với `-Xlint:all` | 0 cảnh báo |
-| Phép thử tự động | 64/64 đạt |
+| Phép thử tự động | 113/113 đạt (8 suite, xem cây thư mục mục 5.2) |
 | Bộ dữ liệu JSON | 6 khách · 6 sân · 6 dịch vụ · 12 lượt đặt · 12 hóa đơn |
-| Kiểm tra API | `/api/health`, phân trang, mã lỗi 404 và 405 đều đúng |
+| Kiểm tra API | `/api/health`, phân trang, mã lỗi 400/404/405/409 đều đúng |
 | Tổng tiền của các hóa đơn `PAID` | 1.887.200 đồng |
+| Lưu trữ bền vững | SQLite qua JDBC, dữ liệu còn sau khi đóng ứng dụng |
+
+Ghi chú: số 64 phép thử ở mục 2.3 và 3.7 là con số gốc lúc viết đặc tả; kể từ khi
+bổ sung tầng cơ sở dữ liệu và nghiệp vụ ghi, tổng số kiểm thử đã tăng lên 113
+(64 phép thử ban đầu + 9 phép thử cơ sở dữ liệu + 22 phép thử nghiệp vụ ghi +
+18 phép thử API ghi).
 
 ---
 
