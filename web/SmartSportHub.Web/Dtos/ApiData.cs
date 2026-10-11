@@ -72,3 +72,10 @@ public sealed class ApiData
     public List<BookingDto> Bookings { get; set; } = [];
     public List<InvoiceDto> Invoices { get; set; } = [];
 }
+public sealed class OverviewDto
+{
+    public string status { get; set; } = "";
+    public string service { get; set; } = "";
+    public string data { get; set; } = "";
+    public decimal totalRevenue { get; set; }
+}
