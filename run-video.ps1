@@ -1,7 +1,7 @@
 # Run SmartSportHub from Windows PowerShell without WSL.
 [CmdletBinding()]
 param(
-    [ValidateSet("Help", "Build", "Api", "Web", "Open")]
+    [ValidateSet("Help", "Build", "Api", "Web", "Open", "Test")]
     [string]$Role = "Help",
     [int]$ApiPort = 18083,
     [string]$DbPath = "db\video-demo.db"
@@ -71,8 +71,11 @@ SmartSportHub Windows runner
   .\run-video.ps1 -Role Open
       Open the web application in the default browser.
 
-No WSL distribution is required. The Web role finds D:\dev\dotnet\dotnet.exe
-when dotnet is not available in PATH.
+  .\run-video.ps1 -Role Test
+      Run the C# test suite (43 tests) with D:\dev\dotnet\dotnet.exe.
+
+No WSL distribution is required. The Api/Web/Test roles find dotnet.exe at
+D:\dev\dotnet when dotnet is not available in PATH.
 "@
 }
 
@@ -102,6 +105,13 @@ switch ($Role) {
     }
     "Open" {
         Start-Process "http://localhost:5080/"
+    }
+    "Test" {
+        $dotnet = Find-DotNet
+        $env:DOTNET_ROOT = Split-Path -Parent $dotnet
+        $env:Path = "$($env:DOTNET_ROOT);$($env:Path)"
+        $tests = Join-Path $root "web\SmartSportHub.Web.Tests\SmartSportHub.Web.Tests.csproj"
+        & $dotnet test $tests --no-restore
     }
     default {
         Show-Help
