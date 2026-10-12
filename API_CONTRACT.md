@@ -9,13 +9,13 @@ Tài liệu này là hợp đồng tích hợp duy nhất giữa **Dev A (Java)*
 | Cách | Lệnh / URL | Khi nào dùng |
 |---|---|---|
 | File JSON tĩnh | `data/dataset.json` (đã commit kèm repo) | Dev B seed database, viết test, chạy offline |
-| API động (JDK thuần, không framework) | `java -cp out smartsporthub.api.SmartSportHubApi` → `http://localhost:8080` | Dev B muốn dữ liệu live, hoặc demo |
+| API động (JDK thuần, không framework) | `java -cp "out;lib/sqlite-jdbc-3.46.1.3.jar" smartsporthub.api.SmartSportHubApi 18083` → `http://localhost:18083` | Dev B muốn dữ liệu live, hoặc demo |
 
 Xuất lại file JSON sau khi đổi seed (Git Bash):
 
 ```bash
 javac -encoding UTF-8 -d out $(find src -name '*.java')
-java -Dfile.encoding=UTF-8 -cp out smartsporthub.service.DataExportService
+java -Dfile.encoding=UTF-8 -cp "out;lib/sqlite-jdbc-3.46.1.3.jar" smartsporthub.service.DataExportService
 # ghi ra data/dataset.json
 ```
 
@@ -240,4 +240,4 @@ totalAmount  = rentalFee + peakSurcharge + serviceFee − discount
 4. Xử lý `serviceId = null`, `status = CANCELLED` (doanh thu = 0).
 5. Gọi API live theo bảng mục 2 để kiểm tra phân trang + 404/405.
 6. Phía C# **không mở file SQLite**: mọi thao tác ghi đi qua endpoint mục 2.2.
-7. Bắt đầu server bằng `build.sh` rồi `java -cp "out;lib/sqlite-jdbc-3.46.1.3.jar" smartsporthub.api.SmartSportHubApi`.
+7. Bắt đầu server bằng `build.ps1` (PowerShell) hoặc `build.sh` (Git Bash), rồi chạy `java -cp "out;lib/sqlite-jdbc-3.46.1.3.jar" smartsporthub.api.SmartSportHubApi 18083`.

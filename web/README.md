@@ -4,20 +4,22 @@ ASP.NET Core MVC đọc dữ liệu trực tiếp từ Java Core API. Ứng dụ
 
 ## Chạy
 
-Yêu cầu JDK (với `lib/sqlite-jdbc-3.46.1.3.jar`) và .NET 10 SDK. Từ thư mục gốc repository:
+Yêu cầu JDK (với `lib/sqlite-jdbc-3.46.1.3.jar`) và .NET SDK. Trên Windows dùng PowerShell, không cần WSL/Git Bash — dùng script `run-video.ps1` ở thư mục gốc repository:
 
 ```powershell
-New-Item -ItemType Directory -Force out | Out-Null
-$javaFiles = Get-ChildItem src -Recurse -Filter *.java | ForEach-Object FullName
-javac -encoding UTF-8 -d out $javaFiles
-java -cp "out;lib/sqlite-jdbc-3.46.1.3.jar" smartsporthub.api.SmartSportHubApi 18083
+cd "D:\New folder\OOP_GK"
+
+# 1. Terminal thứ nhất: chạy Java API (keep cửa sổ này mở)
+.\run-video.ps1 -Role Api
+
+# 2. Terminal thứ hai: chạy C# web (keep cửa sổ này mở)
+.\run-video.ps1 -Role Web
+
+# 3. Mở trình duyệt
+.\run-video.ps1 -Role Open
 ```
 
-Ở terminal khác:
-
-```powershell
-dotnet run --project web/SmartSportHub.Web/SmartSportHub.Web.csproj
-```
+Script tự tìm `D:\dev\dotnet\dotnet.exe` khi dotnet không có trong PATH. Muốn chỉ chạy Java test thì dùng `-Role Build`.
 
 Java API chạy mặc định ở `http://localhost:18083` (cổng `8080` có thể đã bị chiếm bởi Apache nên repo chọn 18083), web chạy ở `http://localhost:5080` — mở địa chỉ này để dùng. Nếu Java chạy ở cổng khác, chỉnh `SmartSportHubApi:BaseUrl` trong `appsettings.json` hoặc biến môi trường `SmartSportHubApi__BaseUrl`.
 

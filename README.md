@@ -582,6 +582,13 @@ Project dùng test console độc lập, không cần JUnit hoặc framework ngo
 14. Lọc theo loại sân.
 15. Xác nhận `fieldId` bất biến.
 
+### Chạy trên Windows PowerShell (khuyên dùng)
+
+```powershell
+cd "D:\New folder\OOP_GK"
+.\build.ps1          # biên dịch + chạy đủ 113 kiểm thử Java
+```
+
 ### Chạy trên Git Bash
 
 ```bash
