@@ -147,7 +147,144 @@ Quá trình phân tích nghiệp vụ dẫn đến **5 thực thể gốc** và 
 
 Nếu gộp tất cả vào bảng `SPORTFIELD`, mỗi dòng sẽ có 4 cột chứa giá trị rỗng không dùng đến. Tách ra thành bốn bảng riêng vừa đúng nguyên tắc chuẩn hoá, vừa tạo ra **đối xứng hoàn hảo** với bốn lớp con trong Java.
 
-## 3.2 Ràng buộc toàn vẹn
+## 3.2 Từ khoá thuộc tính trong tài liệu
+
+| Ký hiệu | Ý nghĩa |
+|---|---|
+| **PK** | Thuộc tính khoá chính — giá trị duy nhất, không trùng lặp, không rỗng |
+| **FK** | Thuộc tính khoá ngoại — tham chiếu tới khoá chính của bảng khác |
+| **PK, FK** | Vừa là khoá chính vừa là khoá ngoại — dùng cho quan hệ kế thừa |
+| *(không ký hiệu)* | Thuộc tính mô tả |
+| *(tính toán)* | Không lưu trong CSDL, tính theo công thức nghiệp vụ |
+
+## 3.3 CUSTOMER — Bảng Khách hàng
+
+**Ý nghĩa:** Lưu hồ sơ khách hàng và chính sách ưu đãi áp dụng cho họ.
+
+| # | Ký hiệu | Tên thuộc tính | Kiểu | Ý nghĩa | Ví dụ |
+|---|---|---|---|---|---|
+| 1 | **PK** | `customerId` | String | Mã khách, do người thiết kế cấp | `C001` |
+| 2 | | `fullName` | String | Họ và tên khách | `Nguyễn Văn An` |
+| 3 | | `phoneNumber` | String | Số điện thoại liên hệ | `0901234567` |
+| 4 | | `email` | String | Email gửi thông báo | `an.nguyen@gmail.com` |
+| 5 | | `customerType` | Enum `CustomerType` | Loại khách: `STANDARD` hoặc `VIP` | `VIP` |
+| 6 | | `discountRate` | double | Tỷ lệ giảm của khách VIP: 0.10, 0.12, 0.15 | `0.1` |
+| 7 | | `tierLevel` | int | Cấp thành viên VIP: 1, 2, 3 | `1` |
+
+**Ghi chú về cột `tierLevel`:** thuộc tính này *chỉ có nghĩa khi `customerType` = `VIP`*. Với khách `STANDARD`, cả `discountRate` lẫn `tierLevel` đều rỗng. Đây là đặc tả cho mô hình quan hệ; trong Java, điều này được đảm bảo bằng cách đặt hai thuộc tính này vào riêng lớp `VipCustomer`.
+
+## 3.4 SPORTFIELD và 4 bảng loại sân
+
+### 3.4.1 SPORTFIELD — bảng gốc
+
+| # | Ký hiệu | Tên thuộc tính | Kiểu | Ý nghĩa | Ví dụ |
+|---|---|---|---|---|---|
+| 1 | **PK** | `fieldId` | String | Mã sân | `F001` |
+| 2 | | `fieldName` | String | Tên sân | `Sân bóng A` |
+| 3 | | `fieldType` | Enum `FieldType` | `FOOTBALL`, `BADMINTON`, `TENNIS`, `PICKLEBALL` | `FOOTBALL` |
+| 4 | | `basePricePerHour` | double | Giá thuê một giờ | `100000` |
+| 5 | | `status` | Enum `FieldStatus` | `AVAILABLE`, `MAINTENANCE`, `OCCUPIED` | `AVAILABLE` |
+
+**Vì sao `fieldType` phải là một cột thật?**
+
+Trong Java, loại sân được biết bằng toán tử `instanceof` — lấy đối tượng là `FootballField` thì chắc chắn là sân bóng đá, không cần lưu. **Nhưng trong mô hình quan hệ thì bắt buộc phải có cột này**, vì Developer B cần thống kê theo loại sân:
+
+- Q03: đếm số sân theo từng loại
+- Q08: doanh thu theo từng loại sân
+- Q10: xếp hạng khách theo tổng thời gian đã dùng từng loại sân
+- Q13: tìm khách đã dùng **từ hai loại sân trở lên**
+
+Không có cột `fieldType`, bốn truy vấn này buộc phải đoán bằng cách kiểm tra chuỗi tên sân có bắt đầu bằng "Sân bóng" hay không — cách làm dễ sai và không phản ánh đúng thiết kế.
+
+### 3.4.2 FOOTBALL_FIELD
+
+| # | Ký hiệu | Tên thuộc tính | Kiểu | Ý nghĩa | Ví dụ |
+|---|---|---|---|---|---|
+| 1 | **PK, FK** | `fieldId` | String → SPORTFIELD | Liên kết tới sân gốc | `F001` |
+| 2 | | `nightLightFee` | double | Phí đèn mỗi lượt | `50000` |
+
+### 3.4.3 BADMINTON_FIELD
+
+| # | Ký hiệu | Tên thuộc tính | Kiểu | Ý nghĩa | Ví dụ |
+|---|---|---|---|---|---|
+| 1 | **PK, FK** | `fieldId` | String → SPORTFIELD | Liên kết tới sân gốc | `F003` |
+| 2 | | `racketFee` | double | Phí thuê vợt mỗi lượt | `20000` |
+| 3 | | `matFee` | double | Phí thảm mỗi lượt | `10000` |
+
+### 3.4.4 TENNIS_FIELD
+
+| # | Ký hiệu | Tên thuộc tính | Kiểu | Ý nghĩa | Ví dụ |
+|---|---|---|---|---|---|
+| 1 | **PK, FK** | `fieldId` | String → SPORTFIELD | Liên kết tới sân gốc | `F005` |
+| 2 | | `courtEquipmentFee` | double | Phí dụng cụ mỗi lượt | `40000` |
+
+### 3.4.5 PICKLEBALL_FIELD
+
+| # | Ký hiệu | Tên thuộc tính | Kiểu | Ý nghĩa | Ví dụ |
+|---|---|---|---|---|---|
+| 1 | **PK, FK** | `fieldId` | String → SPORTFIELD | Liên kết tới sân gốc | `F006` |
+| 2 | | `equipmentFeePerHour` | double | Phí dụng cụ **mỗi giờ** | `15000` |
+
+**Điểm cần lưu ý:** `equipmentFeePerHour` của pickleball tính theo **giờ**, còn `nightLightFee` của bóng đá, `racketFee` và `matFee` của cầu lông, `courtEquipmentFee` của tennis đều tính theo **lượt thuê**. Sự khác biệt này là lý do phí pickleball phải nằm trong hàm tính riêng chứ không thể dùng chung một công thức.
+
+## 3.5 SERVICE — Bảng Dịch vụ
+
+| # | Ký hiệu | Tên thuộc tính | Kiểu | Ý nghĩa | Ví dụ |
+|---|---|---|---|---|---|
+| 1 | **PK** | `serviceId` | String | Mã dịch vụ | `SV001` |
+| 2 | | `name` | String | Tên dịch vụ | `Dụng cụ thể thao` |
+| 3 | | `category` | Enum `ServiceCategory` | Nhóm dịch vụ | `Thiết bị` |
+| 4 | | `unitPrice` | double | Đơn giá một lần dùng | `150000` |
+| 5 | | `active` | boolean | Đang cung cấp hay tạm ngưng | `true` |
+
+**Vì sao `category` phải là enum chứ không phải chuỗi tự do?**
+
+Truy vấn Q14 của Developer B cần tìm những khách **"đã dùng dịch vụ liên quan vợt nhưng chưa từng đặt sân tennis"**. Nếu `category` là chuỗi tự do thì truy vấn phải viết `Contains("vợt")` — một thay đổi nhỏ trong cách đặt tên là hỏng ngay kết quả. Đặt thành enum `ServiceCategory` thì lọc chính xác bằng `ServiceCategory.THIET_BI`.
+
+## 3.6 BOOKING — Bảng Lượt đặt
+
+**Ý nghĩa:** Ghi lại mỗi lần khách đặt sân, kèm toàn bộ chi tiết tính tiền.
+
+| # | Ký hiệu | Tên thuộc tính | Kiểu | Ý nghĩa | Ví dụ |
+|---|---|---|---|---|---|
+| 1 | **PK** | `bookingId` | String | Mã lượt đặt | `B001` |
+| 2 | **FK** | `customerId` | String → CUSTOMER | Khách đặt sân | `C001` |
+| 3 | **FK** | `fieldId` | String → SPORTFIELD | Sân được đặt | `F001` |
+| 4 | **FK** | `serviceId` | String → SERVICE | Dịch vụ kèm theo, có thể rỗng | `SV001` |
+| 5 | | `startTime` | LocalDateTime | Thời điểm bắt đầu | `2026-02-15T18:00` |
+| 6 | | `endTime` | LocalDateTime | Thời điểm kết thúc | `2026-02-15T20:00` |
+| 7 | | `status` | Enum `BookingStatus` | `COMPLETED`, `CONFIRMED`, `CANCELLED` | `COMPLETED` |
+| 8 | *(tính toán)* | `hours` | double | Số giờ thuê, tính từ `endTime − startTime` | `2` |
+| 9 | *(tính toán)* | `rentalFee` | double | Tiền thuê sân | `200000` |
+| 10 | *(tính toán)* | `peakSurcharge` | double | Phí giờ cao điểm | `40000` |
+| 11 | *(tính toán)* | `serviceFee` | double | Tiền dịch vụ | `30000` |
+| 12 | *(tính toán)* | `discount` | double | Tiền giảm | `27000` |
+| 13 | *(tính toán)* | `totalAmount` | double | Tổng tiền phải trả | `243000` |
+
+**Sáu thuộc tính cuối không lưu trong cơ sở dữ liệu.** Chúng là kết quả tính theo công thức nghiệp vụ. Công thức được giữ trong lớp Java và kiểm chứng bằng phép thử tự động — đúng nguyên tắc tính theo nguồn sự kiện.
+
+**Sáu khoản tiền được lưu tách riêng là có chủ ý.** Nếu chỉ lưu `totalAmount`, thì báo cáo doanh thu từng khoản phí và phân tích ảnh hưởng giờ cao điểm sẽ không có dữ liệu để tính.
+
+## 3.7 INVOICE — Bảng Hóa đơn
+
+| # | Ký hiệu | Tên thuộc tính | Kiểu | Ý nghĩa | Ví dụ |
+|---|---|---|---|---|---|
+| 1 | **PK** | `invoiceId` | String | Mã hóa đơn | `I001` |
+| 2 | **FK** | `bookingId` | String → BOOKING | Lượt đặt sinh hóa đơn | `B001` |
+| 3 | **FK** | `customerId` | String → CUSTOMER | Chụp lại khách lúc phát hành | `C001` |
+| 4 | **FK** | `fieldId` | String → SPORTFIELD | Chụp lại sân lúc phát hành | `F001` |
+| 5 | | `issueDate` | LocalDate | Ngày phát hành | `2026-02-15` |
+| 6 | | `status` | Enum `InvoiceStatus` | `PAID`, `UNPAID`, `REFUNDED` | `PAID` |
+| 7 | | `amount` | double | Số tiền chụp lại lúc phát hành | `243000` |
+
+**Vì sao chụp lại `customerId`, `fieldId` và `amount`?**
+
+Đây là kỹ thuật **snapshot**. Ba thuộc tính này có thể truy ra từ `BOOKING`, nhưng lưu lại giúp:
+
+- Lập báo cáo doanh thu theo khách hoặc theo sân mà không cần nối bảng
+- Kết quả báo cáo **không bị thay đổi** khi lượt đặt được sửa về sau
+
+## 3.8 Ràng buộc toàn vẹn
 
 | Mã | Ràng buộc | Cách đảm bảo |
 |---|---|---|
@@ -158,14 +295,6 @@ Nếu gộp tất cả vào bảng `SPORTFIELD`, mỗi dòng sẽ có 4 cột ch
 | RB5 | `status` ∈ {AVAILABLE, MAINTENANCE, OCCUPIED} | Enum `FieldStatus` |
 | RB6 | Một sân không thể có hai booking giao nhau thời gian | `requireSlotFree` trong `BookingService` |
 | RB7 | `discountRate` và `tierLevel` chỉ tồn tại trên khách VIP | Đặt hai thuộc tính này vào riêng lớp `VipCustomer` |
-
-## 3.3 Từ khoá thuộc tính trong tài liệu
-
-| Ký hiệu | Ý nghĩa |
-|---|---|
-| **PK** | Thuộc tính khoá chính — giá trị duy nhất, không trùng lặp, không rỗng |
-| **FK** | Thuộc tính khoá ngoại — tham chiếu tới khoá chính của bảng khác |
-| **PK, FK** | Vừa là khoá chính vừa là khoá ngoại |
 
 ---
 

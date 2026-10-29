@@ -152,6 +152,11 @@ for s in [
     "Bảng 6. Bảng tổng kết kết quả kiểm thử Java",
     "Bảng 7. Bảng kết quả kiểm thử C#",
     "Bảng 8. Bảng mô tả các endpoint API",
+    "Bảng 9. Thuộc tính bảng CUSTOMER",
+    "Bảng 10. Thuộc tính bảng SPORTFIELD và 4 bảng loại sân",
+    "Bảng 11. Thuộc tính bảng SERVICE",
+    "Bảng 12. Thuộc tính bảng BOOKING",
+    "Bảng 13. Thuộc tính bảng INVOICE",
 ]:
     plain_para(s, size=12)
 add_pagebreak()
@@ -227,6 +232,74 @@ add_table(["STT", "Thực thể", "Ý nghĩa nghiệp vụ", "Loại"], [
     ["9", "INVOICE", "Hóa đơn thanh toán", "Thực thể gốc"],
 ])
 para("Vì sao tách bốn bảng loại sân? Bốn loại sân có bốn bộ phí riêng biệt, không loại nào giống loại nào: sân bóng đá có phí đèn; sân cầu lông có phí vợt và phí thảm; sân tennis có phí dụng cụ; sân pickleball có phí dụng cụ theo giờ. Nếu gộp tất cả vào bảng SPORTFIELD, mỗi dòng sẽ có 4 cột chứa giá trị rỗng không dùng đến. Tách ra thành bốn bảng riêng vừa đúng nguyên tắc chuẩn hoá, vừa tạo ra đối xứng hoàn hảo với bốn lớp con trong Java.")
+ndoc.add_heading("1.2.1. Bảng CUSTOMER — khách hàng", level=3)
+para("Ý nghĩa: lưu hồ sơ khách hàng và chính sách ưu đãi áp dụng cho họ.")
+caption("Bảng 9. Thuộc tính bảng CUSTOMER")
+add_table(["#", "Ký hiệu", "Tên thuộc tính", "Kiểu", "Ý nghĩa", "Ví dụ"], [
+    ["1", "PK", "customerId", "String", "Mã khách, do người thiết kế cấp", "C001"],
+    ["2", "", "fullName", "String", "Họ và tên khách", "Nguyễn Văn An"],
+    ["3", "", "phoneNumber", "String", "Số điện thoại liên hệ", "0901234567"],
+    ["4", "", "email", "String", "Email gửi thông báo", "an.nguyen@gmail.com"],
+    ["5", "", "customerType", "Enum CustomerType", "Loại khách: STANDARD hoặc VIP", "VIP"],
+    ["6", "", "discountRate", "double", "Tỷ lệ giảm của khách VIP: 0.10, 0.12, 0.15", "0.1"],
+    ["7", "", "tierLevel", "int", "Cấp thành viên VIP: 1, 2, 3", "1"],
+])
+para("Ghi chú về cột tierLevel: thuộc tính này chỉ có nghĩa khi customerType = VIP. Với khách STANDARD, cả discountRate lẫn tierLevel đều rỗng. Trong Java, điều này được đảm bảo bằng cách đặt hai thuộc tính này vào riêng lớp VipCustomer.")
+ndoc.add_heading("1.2.2. Bảng SPORTFIELD và 4 bảng loại sân", level=3)
+caption("Bảng 10. Thuộc tính bảng SPORTFIELD và 4 bảng loại sân")
+add_table(["#", "Ký hiệu", "Tên thuộc tính", "Kiểu", "Ý nghĩa", "Ví dụ"], [
+    ["1", "PK", "fieldId", "String", "Mã sân", "F001"],
+    ["2", "", "fieldName", "String", "Tên sân", "Sân bóng A"],
+    ["3", "", "fieldType", "Enum FieldType", "FOOTBALL, BADMINTON, TENNIS, PICKLEBALL", "FOOTBALL"],
+    ["4", "", "basePricePerHour", "double", "Giá thuê một giờ", "100000"],
+    ["5", "", "status", "Enum FieldStatus", "AVAILABLE, MAINTENANCE, OCCUPIED", "AVAILABLE"],
+    ["6", "PK, FK", "FOOTBALL_FIELD.fieldId + nightLightFee", "double", "Phí đèn mỗi lượt bóng đá", "50000"],
+    ["7", "PK, FK", "BADMINTON_FIELD.fieldId + racketFee, matFee", "double", "Phí vợt 20000 + phí thảm 10000 mỗi lượt", "20000 / 10000"],
+    ["8", "PK, FK", "TENNIS_FIELD.fieldId + courtEquipmentFee", "double", "Phí dụng cụ mỗi lượt tennis", "40000"],
+    ["9", "PK, FK", "PICKLEBALL_FIELD.fieldId + equipmentFeePerHour", "double", "Phí dụng cụ pickleball tính theo giờ", "15000"],
+])
+para("Vì sao fieldType phải là một cột thật? Trong Java, loại sân được biết bằng toán tử instanceof; nhưng trong mô hình quan hệ thì bắt buộc phải có cột này, vì Developer B cần thống kê theo loại sân ở Q03 (đếm sân theo loại), Q08 (doanh thu theo loại), Q10 và Q13 (khách dùng nhiều loại sân). Điểm cần lưu ý: equipmentFeePerHour của pickleball tính theo giờ, còn các phí riêng còn lại đều tính theo lượt thuê.")
+ndoc.add_heading("1.2.3. Bảng SERVICE — dịch vụ", level=3)
+caption("Bảng 11. Thuộc tính bảng SERVICE")
+add_table(["#", "Ký hiệu", "Tên thuộc tính", "Kiểu", "Ý nghĩa", "Ví dụ"], [
+    ["1", "PK", "serviceId", "String", "Mã dịch vụ", "SV001"],
+    ["2", "", "name", "String", "Tên dịch vụ", "Dụng cụ thể thao"],
+    ["3", "", "category", "Enum ServiceCategory", "Nhóm dịch vụ", "Thiết bị"],
+    ["4", "", "unitPrice", "double", "Đơn giá một lần dùng", "150000"],
+    ["5", "", "active", "boolean", "Đang cung cấp hay tạm ngưng", "true"],
+])
+para("Vì sao category phải là enum chứ không phải chuỗi tự do? Truy vấn Q14 cần tìm khách đã dùng dịch vụ liên quan vợt nhưng chưa từng đặt sân tennis. Nếu category là chuỗi tự do thì truy vấn phải viết Contains (vợt) và dễ hỏng khi đổi cách đặt tên; đặt thành enum ServiceCategory thì lọc chính xác bằng ServiceCategory.THIET_BI.")
+ndoc.add_heading("1.2.4. Bảng BOOKING — lượt đặt", level=3)
+para("Ý nghĩa: ghi lại mỗi lần khách đặt sân, kèm toàn bộ chi tiết tính tiền.")
+caption("Bảng 12. Thuộc tính bảng BOOKING")
+add_table(["#", "Ký hiệu", "Tên thuộc tính", "Kiểu", "Ý nghĩa", "Ví dụ"], [
+    ["1", "PK", "bookingId", "String", "Mã lượt đặt", "B001"],
+    ["2", "FK", "customerId", "String → CUSTOMER", "Khách đặt sân", "C001"],
+    ["3", "FK", "fieldId", "String → SPORTFIELD", "Sân được đặt", "F001"],
+    ["4", "FK", "serviceId", "String → SERVICE", "Dịch vụ kèm theo, có thể rỗng", "SV001"],
+    ["5", "", "startTime", "LocalDateTime", "Thời điểm bắt đầu", "2026-02-15T18:00"],
+    ["6", "", "endTime", "LocalDateTime", "Thời điểm kết thúc", "2026-02-15T20:00"],
+    ["7", "", "status", "Enum BookingStatus", "COMPLETED, CONFIRMED, CANCELLED", "COMPLETED"],
+    ["8", "(tính toán)", "hours", "double", "Số giờ thuê, tính từ endTime − startTime", "2"],
+    ["9", "(tính toán)", "rentalFee", "double", "Tiền thuê sân", "200000"],
+    ["10", "(tính toán)", "peakSurcharge", "double", "Phí giờ cao điểm", "40000"],
+    ["11", "(tính toán)", "serviceFee", "double", "Tiền dịch vụ", "30000"],
+    ["12", "(tính toán)", "discount", "double", "Tiền giảm", "27000"],
+    ["13", "(tính toán)", "totalAmount", "double", "Tổng tiền phải trả", "243000"],
+])
+para("Sáu thuộc tính tính toán không lưu trong cơ sở dữ liệu; công thức được giữ trong lớp Java và kiểm chứng bằng phép thử tự động. Sáu khoản tiền được tách riêng là có chủ ý: nếu chỉ lưu totalAmount thì báo cáo doanh thu từng khoản phí và phân tích ảnh hưởng giờ cao điểm sẽ không có dữ liệu để tính.")
+ndoc.add_heading("1.2.5. Bảng INVOICE — hóa đơn", level=3)
+caption("Bảng 13. Thuộc tính bảng INVOICE")
+add_table(["#", "Ký hiệu", "Tên thuộc tính", "Kiểu", "Ý nghĩa", "Ví dụ"], [
+    ["1", "PK", "invoiceId", "String", "Mã hóa đơn", "I001"],
+    ["2", "FK", "bookingId", "String → BOOKING", "Lượt đặt sinh hóa đơn", "B001"],
+    ["3", "FK", "customerId", "String → CUSTOMER", "Chụp lại khách lúc phát hành", "C001"],
+    ["4", "FK", "fieldId", "String → SPORTFIELD", "Chụp lại sân lúc phát hành", "F001"],
+    ["5", "", "issueDate", "LocalDate", "Ngày phát hành", "2026-02-15"],
+    ["6", "", "status", "Enum InvoiceStatus", "PAID, UNPAID, REFUNDED", "PAID"],
+    ["7", "", "amount", "double", "Số tiền chụp lại lúc phát hành", "243000"],
+])
+para("Vì sao chụp lại customerId, fieldId và amount? Đây là kỹ thuật snapshot: ba thuộc tính này có thể truy ra từ BOOKING, nhưng lưu lại giúp lập báo cáo doanh thu theo khách hoặc theo sân mà không cần nối bảng, và kết quả báo cáo không bị thay đổi khi lượt đặt được sửa về sau.")
 para("Ràng buộc toàn vẹn được xác định bao gồm: các thuộc tính khóa chính không trùng lặp và không rỗng (RB1); giá cơ bản mỗi giờ lớn hơn 0 (RB2); thời gian bắt đầu nhỏ hơn thời gian kết thúc (RB3); số giờ lớn hơn 0 (RB4); trạng thái sân chỉ thuộc {AVAILABLE, MAINTENANCE, OCCUPIED} (RB5); một sân không thể có hai booking giao nhau thời gian (RB6); chiết khấu và cấp độ chỉ tồn tại trên khách VIP (RB7).")
 
 ndoc.add_heading("1.3. Xác định mối liên kết và xây dựng ERD", level=2)
